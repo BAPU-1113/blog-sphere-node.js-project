@@ -1,0 +1,209 @@
+<%- include('partials/head', { title: article.title + ' - BlogSphere' }) %>
+<%- include('partials/navbar') %>
+
+<main class="container">
+  <article class="article-detail-container">
+    <!-- Hero Cover Image -->
+    <img 
+      src="<%= article.displayImage %>" 
+      alt="<%= article.title %>" 
+      class="article-hero-cover"
+    />
+
+    <div class="article-content-body">
+      <!-- Article Header -->
+      <header class="article-header">
+        <div class="article-header-meta">
+          <span class="tag-badge" style="background: var(--color-primary-subtle); color: var(--color-primary); font-weight: 700;">
+            <%= article.category %>
+          </span>
+          <span style="color: var(--text-muted); font-size: 0.875rem;">
+            <i class="fa-regular fa-clock"></i> <%= article.readTime %>
+          </span>
+          <span style="color: var(--text-muted); font-size: 0.875rem;">
+            <i class="fa-regular fa-calendar"></i> <%= new Date(article.createdAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) %>
+          </span>
+        </div>
+
+        <h1 class="article-main-title"><%= article.title %></h1>
+
+        <!-- Author Banner & Actions -->
+        <div class="article-author-banner">
+          <div class="author-profile-full">
+            <% if (article.author) { %>
+              <img 
+                src="<%= article.author.avatarUrl || 'https://api.dicebear.com/7.x/initials/svg?seed=' + encodeURIComponent(article.author.username) %>" 
+                alt="<%= article.author.username %>" 
+                class="author-profile-avatar"
+              />
+              <div>
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                  <strong style="font-size: 1.05rem; color: var(--text-main);"><%= article.author.username %></strong>
+                  <span class="role-badge <%= article.author.role === 'admin' ? 'admin' : 'user' %>">
+                    <%= article.author.role %>
+                  </span>
+                </div>
+                <p style="font-size: 0.85rem; color: var(--text-muted);"><%= article.author.bio || 'Author on BlogSphere' %></p>
+              </div>
+            <% } else { %>
+              <span>Written by Anonymous</span>
+            <% } %>
+          </div>
+
+          <!-- Role-Based & Ownership Action Controls -->
+          <% if (canManage) { %>
+            <div class="article-actions-bar">
+              <% if (isAdmin && !isAuthor) { %>
+                <span class="role-badge admin" style="font-size: 0.7rem; padding: 0.3rem 0.6rem;">Admin Moderator</span>
+              <% } %>
+              <a href="/articles/<%= article._id %>/edit" class="btn btn-outline btn-sm">
+                <i class="fa-solid fa-pen-to-square"></i> Edit
+              </a>
+              <form 
+                action="/articles/<%= article._id %>/delete" 
+                method="POST" 
+                style="display: inline;" 
+                data-confirm="Are you sure you want to delete this article? This will remove all associated comments."
+              >
+                <button type="submit" class="btn btn-danger-outline btn-sm">
+                  <i class="fa-solid fa-trash"></i> Delete
+                </button>
+              </form>
+            </div>
+          <% } %>
+        </div>
+      </header>
+
+      <!-- Main Prose Content -->
+      <section class="article-prose">
+        <%= article.content %>
+      </section>
+
+      <!-- Article Tags -->
+      <% if (article.tags && article.tags.length > 0) { %>
+        <div class="article-tags-list">
+          <% article.tags.forEach(tag => { %>
+            <span class="tag-badge">#<%= tag %></span>
+          <% }) %>
+        </div>
+      <% } %>
+
+      <!-- Comments Section -->
+      <section class="comments-section" id="comments">
+        <h2 class="comments-title">
+          <span>Discussion</span>
+          <span class="comment-count-badge">
+            <%= article.comments ? article.comments.length : 0 %>
+          </span>
+        </h2>
+
+        <!-- Comments Error Banner (if any) -->
+        <% if (error) { %>
+          <div class="alert alert-danger" style="margin-bottom: 1.5rem;">
+            <i class="fa-solid fa-circle-exclamation"></i>
+            <span><%= error %></span>
+          </div>
+        <% } %>
+
+        <!-- Comment Creation Form -->
+        <% if (currentUser) { %>
+          <div class="comment-input-card">
+            <div style="display: flex; align-items: center; gap: 0.65rem; margin-bottom: 0.85rem;">
+              <img 
+                src="https://api.dicebear.com/7.x/initials/svg?seed=<%= encodeURIComponent(currentUser.username) %>" 
+                alt="<%= currentUser.username %>" 
+                class="comment-avatar"
+              />
+              <span style="font-size: 0.9rem; font-weight: 700; color: var(--text-main);">
+                Comment as <strong><%= currentUser.username %></strong>
+              </span>
+            </div>
+
+            <form action="/articles/<%= article._id %>/comments" method="POST">
+              <textarea 
+                name="content" 
+                class="comment-textarea" 
+                placeholder="Share your thoughts, ask questions, or contribute to the discussion..." 
+                required
+              ></textarea>
+              <div style="display: flex; justify-content: flex-end;">
+                <button type="submit" class="btn btn-primary btn-sm">
+                  <i class="fa-solid fa-paper-plane"></i> Post Comment
+                </button>
+              </div>
+            </form>
+          </div>
+        <% } else { %>
+          <div style="background: var(--bg-surface-alt); border-radius: var(--radius-md); padding: 1.5rem; text-align: center; margin-bottom: 2.5rem; border: 1px dashed var(--border-light);">
+            <p style="color: var(--text-secondary); margin-bottom: 1rem; font-size: 0.95rem;">
+              Join the conversation! Please sign in to leave a comment.
+            </p>
+            <a href="/login?redirect=/articles/<%= article._id %>#comments" class="btn btn-primary btn-sm">
+              <i class="fa-solid fa-arrow-right-to-bracket"></i> Sign in to Comment
+            </a>
+          </div>
+        <% } %>
+
+        <!-- Populated Comments List -->
+        <div class="comment-list">
+          <% if (!article.comments || article.comments.length === 0) { %>
+            <p style="color: var(--text-muted); font-size: 0.95rem; text-align: center; padding: 2rem 0;">
+              No comments yet. Be the first to start the discussion!
+            </p>
+          <% } else { %>
+            <% article.comments.forEach(comment => { %>
+              <div class="comment-card">
+                <div class="comment-header">
+                  <div class="comment-author-info">
+                    <% if (comment.author) { %>
+                      <img 
+                        src="<%= comment.author.avatarUrl || 'https://api.dicebear.com/7.x/initials/svg?seed=' + encodeURIComponent(comment.author.username) %>" 
+                        alt="<%= comment.author.username %>" 
+                        class="comment-avatar"
+                      />
+                      <span style="font-weight: 700; font-size: 0.9rem; color: var(--text-main);"><%= comment.author.username %></span>
+                      <% if (comment.author.role === 'admin') { %>
+                        <span class="role-badge admin" style="font-size: 0.6rem; padding: 0.1rem 0.4rem;">ADMIN</span>
+                      <% } %>
+                    <% } else { %>
+                      <span style="font-weight: 700; font-size: 0.9rem;">Anonymous User</span>
+                    <% } %>
+                    <span style="color: var(--text-muted); font-size: 0.75rem;">
+                      &bull; <%= new Date(comment.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
+                    </span>
+                  </div>
+
+                  <!-- Comment Author or Admin can delete -->
+                  <% 
+                    const canDeleteComment = currentUser && (
+                      (comment.author && comment.author._id.toString() === currentUser.id) || 
+                      currentUser.role === 'admin'
+                    ); 
+                  %>
+                  <% if (canDeleteComment) { %>
+                    <form 
+                      action="/articles/<%= article._id %>/comments/<%= comment._id %>/delete" 
+                      method="POST" 
+                      style="display: inline;" 
+                      data-confirm="Are you sure you want to delete this comment?"
+                    >
+                      <button type="submit" class="btn btn-danger-outline btn-sm" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;" title="Delete Comment">
+                        <i class="fa-solid fa-trash"></i>
+                      </button>
+                    </form>
+                  <% } %>
+                </div>
+
+                <div class="comment-body">
+                  <%= comment.content %>
+                </div>
+              </div>
+            <% }) %>
+          <% } %>
+        </div>
+      </section>
+    </div>
+  </article>
+</main>
+
+<%- include('partials/footer') %>

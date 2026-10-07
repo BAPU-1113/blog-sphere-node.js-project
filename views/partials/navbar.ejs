@@ -1,0 +1,66 @@
+<header class="site-navbar">
+  <div class="container navbar-container">
+    <!-- Brand Logo -->
+    <a href="/articles" class="brand-logo">
+      <div class="brand-icon">
+        <i class="fa-solid fa-feather-pointed"></i>
+      </div>
+      <div class="brand-text">Blog<span>Sphere</span></div>
+    </a>
+
+    <!-- Navigation Menu Links -->
+    <nav class="navbar-menu">
+      <a href="/articles" class="nav-link <%= currentPath === '/articles' || currentPath === '/' ? 'active' : '' %>">
+        <i class="fa-solid fa-newspaper"></i>
+        <span>Articles</span>
+      </a>
+
+      <% if (currentUser) { %>
+        <!-- User-Specific Articles link -->
+        <a href="/my-articles" class="nav-link <%= currentPath === '/my-articles' ? 'active' : '' %>">
+          <i class="fa-solid fa-book-bookmark"></i>
+          <span>My Articles</span>
+        </a>
+
+        <!-- Write Article Form link -->
+        <a href="/articles/new" class="btn btn-primary btn-sm">
+          <i class="fa-solid fa-pen-to-square"></i>
+          <span>Write Story</span>
+        </a>
+
+        <div class="nav-divider"></div>
+
+        <!-- User Profile Pill & Role Badge -->
+        <div class="user-profile-badge">
+          <img 
+            src="https://api.dicebear.com/7.x/initials/svg?seed=<%= encodeURIComponent(currentUser.username) %>&backgroundColor=4f46e5,7c3aed" 
+            alt="<%= currentUser.username %>" 
+            class="user-avatar-mini"
+          />
+          <span class="user-name-text"><%= currentUser.username %></span>
+          <span class="role-badge <%= currentUser.role === 'admin' ? 'admin' : 'user' %>">
+            <%= currentUser.role %>
+          </span>
+        </div>
+
+        <!-- Sign Out Button -->
+        <a href="/logout" class="btn btn-outline btn-sm">
+          <i class="fa-solid fa-arrow-right-from-bracket"></i>
+          <span>Sign Out</span>
+        </a>
+
+      <% } else { %>
+        <!-- Guest Navigation Links -->
+        <div class="nav-divider"></div>
+        <a href="/login" class="btn btn-outline btn-sm <%= currentPath === '/login' ? 'active' : '' %>">
+          <i class="fa-solid fa-arrow-right-to-bracket"></i>
+          <span>Sign In</span>
+        </a>
+        <a href="/register" class="btn btn-primary btn-sm <%= currentPath === '/register' ? 'active' : '' %>">
+          <i class="fa-solid fa-user-plus"></i>
+          <span>Register</span>
+        </a>
+      <% } %>
+    </nav>
+  </div>
+</header>

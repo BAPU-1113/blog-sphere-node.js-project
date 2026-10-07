@@ -1,0 +1,80 @@
+<%- include('partials/head', { title: 'Sign In - BlogSphere' }) %>
+<%- include('partials/navbar') %>
+
+<main class="container">
+  <div class="form-card-container">
+    <div style="text-align: center; margin-bottom: 2rem;">
+      <div class="brand-icon" style="margin: 0 auto 1rem; width: 3rem; height: 3rem; font-size: 1.4rem;">
+        <i class="fa-solid fa-feather-pointed"></i>
+      </div>
+      <h1 class="form-heading">Welcome Back</h1>
+      <p class="form-subheading">Sign in to publish articles, manage stories, and engage in discussions.</p>
+    </div>
+
+    <% if (error) { %>
+      <div class="alert alert-danger">
+        <i class="fa-solid fa-circle-exclamation"></i>
+        <span><%= error %></span>
+      </div>
+    <% } %>
+
+    <form action="/login" method="POST">
+      <input type="hidden" name="redirect" value="<%= typeof redirect !== 'undefined' ? redirect : '' %>" />
+
+      <!-- Username or Email -->
+      <div class="form-group">
+        <label for="credential" class="form-label">Username or Email</label>
+        <input 
+          type="text" 
+          id="credential" 
+          name="credential" 
+          class="form-control" 
+          placeholder="admin or your_email@example.com" 
+          value="<%= formData.credential || '' %>" 
+          required 
+          autofocus
+        />
+      </div>
+
+      <!-- Password -->
+      <div class="form-group">
+        <label for="password" class="form-label">Password</label>
+        <input 
+          type="password" 
+          id="password" 
+          name="password" 
+          class="form-control" 
+          placeholder="••••••••" 
+          required 
+        />
+      </div>
+
+      <button type="submit" class="btn btn-primary" style="width: 100%; padding: 0.8rem; margin-top: 0.5rem; font-size: 1rem;">
+        Sign In
+      </button>
+
+      <!-- Quick Demo Login Helpers -->
+      <div class="demo-account-box">
+        <strong><i class="fa-solid fa-bolt" style="color: var(--color-warning);"></i> Quick Demo Fill:</strong>
+        <p style="color: var(--text-muted); font-size: 0.8rem; margin: 0.25rem 0;">
+          Click below to auto-fill seeded credentials:
+        </p>
+        <div class="demo-buttons-row">
+          <button type="button" id="fill-admin-btn" class="btn btn-outline btn-sm" style="flex: 1;">
+            <i class="fa-solid fa-shield-halved"></i> Admin (admin)
+          </button>
+          <button type="button" id="fill-user-btn" class="btn btn-outline btn-sm" style="flex: 1;">
+            <i class="fa-solid fa-user"></i> User (alice)
+          </button>
+        </div>
+      </div>
+    </form>
+
+    <div style="text-align: center; margin-top: 1.75rem; font-size: 0.9rem; color: var(--text-secondary);">
+      Don't have an account yet? 
+      <a href="/register" style="color: var(--color-primary); font-weight: 700;">Create one now &rarr;</a>
+    </div>
+  </div>
+</main>
+
+<%- include('partials/footer') %>

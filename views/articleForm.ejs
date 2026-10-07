@@ -1,0 +1,118 @@
+<%- include('partials/head', { title: (isEdit ? 'Edit Article' : 'Write Story') + ' - BlogSphere' }) %>
+<%- include('partials/navbar') %>
+
+<main class="container">
+  <div class="form-editor-container">
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 2rem;">
+      <div>
+        <h1 class="form-heading"><%= isEdit ? 'Edit Your Story' : 'Write a New Story' %></h1>
+        <p class="form-subheading">Craft meaningful content with clear thoughts, clean code, and great formatting.</p>
+      </div>
+      <a href="<%= isEdit ? '/articles/' + article._id : '/articles' %>" class="btn btn-outline btn-sm">
+        <i class="fa-solid fa-arrow-left"></i> Cancel
+      </a>
+    </div>
+
+    <% if (error) { %>
+      <div class="alert alert-danger">
+        <i class="fa-solid fa-circle-exclamation"></i>
+        <span><%= error %></span>
+      </div>
+    <% } %>
+
+    <form action="<%= formAction %>" method="POST">
+      <!-- Title -->
+      <div class="form-group">
+        <label for="title" class="form-label">Article Title <span style="color: var(--color-danger);">*</span></label>
+        <input 
+          type="text" 
+          id="title" 
+          name="title" 
+          class="form-control" 
+          placeholder="e.g. Building Modern Web Applications with Node.js and JWT" 
+          value="<%= article.title || '' %>" 
+          required 
+        />
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+        <!-- Category -->
+        <div class="form-group">
+          <label for="category" class="form-label">Category</label>
+          <select id="category" name="category" class="form-control">
+            <% const currentCat = article.category || 'Technology'; %>
+            <option value="Technology" <%= currentCat === 'Technology' ? 'selected' : '' %>>Technology</option>
+            <option value="Web Development" <%= currentCat === 'Web Development' ? 'selected' : '' %>>Web Development</option>
+            <option value="Design & UX" <%= currentCat === 'Design & UX' ? 'selected' : '' %>>Design & UX</option>
+            <option value="Data & AI" <%= currentCat === 'Data & AI' ? 'selected' : '' %>>Data & AI</option>
+            <option value="Engineering" <%= currentCat === 'Engineering' ? 'selected' : '' %>>Engineering</option>
+            <option value="Career & Life" <%= currentCat === 'Career & Life' ? 'selected' : '' %>>Career & Life</option>
+          </select>
+        </div>
+
+        <!-- Tags -->
+        <div class="form-group">
+          <label for="tags" class="form-label">Tags (comma-separated)</label>
+          <input 
+            type="text" 
+            id="tags" 
+            name="tags" 
+            class="form-control" 
+            placeholder="e.g. nodejs, mongodb, auth" 
+            value="<%= Array.isArray(article.tags) ? article.tags.join(', ') : (article.tags || '') %>" 
+          />
+        </div>
+      </div>
+
+      <!-- Cover Image URL -->
+      <div class="form-group">
+        <label for="coverImage" class="form-label">Cover Image URL (optional)</label>
+        <input 
+          type="url" 
+          id="coverImage" 
+          name="coverImage" 
+          class="form-control" 
+          placeholder="https://images.unsplash.com/photo-..." 
+          value="<%= article.coverImage || '' %>" 
+        />
+        <small style="color: var(--text-muted); font-size: 0.8rem; margin-top: 0.35rem; display: block;">
+          Leave empty to automatically use a curated high-definition banner.
+        </small>
+      </div>
+
+      <!-- Summary -->
+      <div class="form-group">
+        <label for="summary" class="form-label">Short Summary</label>
+        <textarea 
+          id="summary" 
+          name="summary" 
+          class="form-control" 
+          rows="2" 
+          placeholder="A quick 1-2 sentence hook for the feed cards..."
+        ><%= article.summary || '' %></textarea>
+      </div>
+
+      <!-- Full Content -->
+      <div class="form-group">
+        <label for="content" class="form-label">Story Content <span style="color: var(--color-danger);">*</span></label>
+        <textarea 
+          id="content" 
+          name="content" 
+          class="form-control form-control-textarea" 
+          rows="12" 
+          placeholder="Write your story here... Markdown and line breaks are fully supported." 
+          required
+        ><%= article.content || '' %></textarea>
+      </div>
+
+      <div style="display: flex; align-items: center; justify-content: flex-end; gap: 1rem; margin-top: 2rem;">
+        <a href="<%= isEdit ? '/articles/' + article._id : '/articles' %>" class="btn btn-outline">Cancel</a>
+        <button type="submit" class="btn btn-primary btn-lg">
+          <i class="fa-solid fa-paper-plane"></i> <%= isEdit ? 'Update Article' : 'Publish Story' %>
+        </button>
+      </div>
+    </form>
+  </div>
+</main>
+
+<%- include('partials/footer') %>

@@ -1,0 +1,124 @@
+<%- include('partials/head', { title: 'Explore Articles - BlogSphere' }) %>
+<%- include('partials/navbar') %>
+
+<!-- Hero Header Section -->
+<section class="hero-section">
+  <div class="hero-overlay"></div>
+  <div class="container hero-content">
+    <h1 class="hero-title">Words that inspire, ideas that transform.</h1>
+    <p class="hero-subtitle">Discover stories, insights, and thinking from a community of creators and engineers.</p>
+
+    <!-- Search Form -->
+    <form action="/articles" method="GET" class="hero-search-box">
+      <i class="fa-solid fa-magnifying-glass" style="margin-left: 1rem; color: #94a3b8; align-self: center;"></i>
+      <input 
+        type="text" 
+        name="search" 
+        class="hero-search-input" 
+        placeholder="Search articles by title, summary, or content..." 
+        value="<%= searchQuery %>"
+      />
+      <% if (selectedCategory && selectedCategory !== 'All') { %>
+        <input type="hidden" name="category" value="<%= selectedCategory %>">
+      <% } %>
+      <button type="submit" class="btn btn-primary" style="border-radius: var(--radius-pill); padding: 0.6rem 1.4rem;">
+        Search
+      </button>
+    </form>
+  </div>
+</section>
+
+<main class="container">
+  <!-- Category Filter Chips -->
+  <div class="filter-bar">
+    <% categories.forEach(cat => { %>
+      <a 
+        href="/articles?category=<%= encodeURIComponent(cat) %><%= searchQuery ? '&search=' + encodeURIComponent(searchQuery) : '' %>" 
+        class="filter-chip <%= selectedCategory === cat ? 'active' : '' %>"
+      >
+        <%= cat %>
+      </a>
+    <% }) %>
+  </div>
+
+  <% if (articles.length === 0) { %>
+    <!-- Empty State -->
+    <div style="text-align: center; padding: 4rem 1rem; background: white; border-radius: var(--radius-lg); border: 1px solid var(--border-light); margin: 2rem 0 4rem;">
+      <i class="fa-regular fa-folder-open" style="font-size: 3rem; color: var(--text-muted); margin-bottom: 1rem;"></i>
+      <h3 style="font-size: 1.4rem; font-weight: 700; margin-bottom: 0.5rem;">No articles found</h3>
+      <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">
+        <%= searchQuery ? `No articles matched "${searchQuery}". Try a different keyword.` : 'Be the first author to publish a story!' %>
+      </p>
+      <% if (currentUser) { %>
+        <a href="/articles/new" class="btn btn-primary">
+          <i class="fa-solid fa-plus"></i> Write an Article
+        </a>
+      <% } else { %>
+        <a href="/login" class="btn btn-primary">
+          <i class="fa-solid fa-arrow-right-to-bracket"></i> Sign in to Publish
+        </a>
+      <% } %>
+    </div>
+  <% } else { %>
+    <!-- Article Cards Grid -->
+    <div class="articles-grid">
+      <% articles.forEach(article => { %>
+        <article class="article-card">
+          <a href="/articles/<%= article._id %>" class="card-image-wrap">
+            <img 
+              src="<%= article.displayImage %>" 
+              alt="<%= article.title %>" 
+              class="card-image"
+              loading="lazy"
+            />
+            <span class="card-category-tag"><%= article.category %></span>
+          </a>
+
+          <div class="card-body">
+            <div class="card-meta-top">
+              <span><i class="fa-regular fa-clock"></i> <%= article.readTime %></span>
+              <span><i class="fa-regular fa-comment"></i> <%= article.comments ? article.comments.length : 0 %> comments</span>
+            </div>
+
+            <h2 class="card-title">
+              <a href="/articles/<%= article._id %>"><%= article.title %></a>
+            </h2>
+
+            <p class="card-summary"><%= article.summary %></p>
+
+            <div class="card-author-footer">
+              <div class="author-block">
+                <% if (article.author) { %>
+                  <img 
+                    src="<%= article.author.avatarUrl || 'https://api.dicebear.com/7.x/initials/svg?seed=' + encodeURIComponent(article.author.username) %>" 
+                    alt="<%= article.author.username %>" 
+                    class="author-avatar"
+                  />
+                  <div>
+                    <div style="display: flex; align-items: center; gap: 0.4rem;">
+                      <span class="author-details-name"><%= article.author.username %></span>
+                      <% if (article.author.role === 'admin') { %>
+                        <span class="role-badge admin" style="font-size: 0.6rem; padding: 0.1rem 0.4rem;">ADMIN</span>
+                      <% } %>
+                    </div>
+                    <span class="author-details-date">
+                      <%= new Date(article.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
+                    </span>
+                  </div>
+                <% } else { %>
+                  <span class="author-details-name">Anonymous</span>
+                <% } %>
+              </div>
+
+              <a href="/articles/<%= article._id %>" class="btn btn-outline btn-sm">
+                Read <i class="fa-solid fa-arrow-right"></i>
+              </a>
+            </div>
+          </div>
+        </article>
+      <% }) %>
+    </div>
+  <% } %>
+</main>
+
+<%- include('partials/footer') %>

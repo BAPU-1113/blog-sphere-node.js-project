@@ -1,0 +1,126 @@
+<%- include('partials/head', { title: 'My Articles - BlogSphere' }) %>
+<%- include('partials/navbar') %>
+
+<main class="container">
+  <!-- Author Profile & Stats Banner -->
+  <section class="dashboard-header">
+    <div class="dashboard-user-card">
+      <img 
+        src="<%= user.avatarUrl || 'https://api.dicebear.com/7.x/initials/svg?seed=' + encodeURIComponent(user.username) %>" 
+        alt="<%= user.username %>" 
+        class="dashboard-avatar"
+      />
+      <div>
+        <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.25rem;">
+          <h1 style="font-size: 1.6rem; font-weight: 800;"><%= user.username %></h1>
+          <span class="role-badge <%= user.role === 'admin' ? 'admin' : 'user' %>">
+            <%= user.role %>
+          </span>
+        </div>
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 0.35rem;">
+          <i class="fa-regular fa-envelope"></i> <%= user.email %>
+        </p>
+        <p style="color: var(--text-secondary); font-size: 0.95rem; max-width: 600px;">
+          <%= user.bio || 'Author on BlogSphere' %>
+        </p>
+      </div>
+    </div>
+
+    <!-- Quick Stats & Actions -->
+    <div style="display: flex; align-items: center; gap: 2rem;">
+      <div class="dashboard-stats">
+        <div class="stat-item">
+          <div class="stat-number"><%= articles.length %></div>
+          <div class="stat-label">Published Articles</div>
+        </div>
+      </div>
+      <a href="/articles/new" class="btn btn-primary">
+        <i class="fa-solid fa-plus"></i> New Story
+      </a>
+    </div>
+  </section>
+
+  <!-- Articles List / Management Table -->
+  <section>
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
+      <h2 style="font-size: 1.35rem; font-weight: 800;">Your Stories (<%= articles.length %>)</h2>
+      <a href="/articles" style="font-size: 0.9rem; color: var(--color-primary); font-weight: 600;">
+        Browse Public Feed &rarr;
+      </a>
+    </div>
+
+    <% if (articles.length === 0) { %>
+      <div style="text-align: center; padding: 4rem 1rem; background: white; border-radius: var(--radius-lg); border: 1px solid var(--border-light); margin-bottom: 4rem;">
+        <i class="fa-solid fa-feather" style="font-size: 3rem; color: var(--text-muted); margin-bottom: 1rem;"></i>
+        <h3 style="font-size: 1.3rem; font-weight: 700; margin-bottom: 0.5rem;">You haven't written any articles yet</h3>
+        <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">
+          Share your knowledge and ideas with the community today!
+        </p>
+        <a href="/articles/new" class="btn btn-primary">
+          <i class="fa-solid fa-pen"></i> Publish Your First Article
+        </a>
+      </div>
+    <% } else { %>
+      <div class="dashboard-table-container">
+        <table class="dashboard-table">
+          <thead>
+            <tr>
+              <th>Article Title</th>
+              <th>Category</th>
+              <th>Published Date</th>
+              <th>Comments</th>
+              <th style="text-align: right;">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% articles.forEach(article => { %>
+              <tr>
+                <td style="max-width: 320px;">
+                  <a href="/articles/<%= article._id %>" style="font-weight: 700; color: var(--text-main); font-size: 1rem;">
+                    <%= article.title %>
+                  </a>
+                  <p style="font-size: 0.8rem; color: var(--text-muted); text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">
+                    <%= article.summary || article.content.substring(0, 80) %>...
+                  </p>
+                </td>
+                <td>
+                  <span class="tag-badge"><%= article.category %></span>
+                </td>
+                <td style="color: var(--text-secondary); font-size: 0.875rem;">
+                  <%= new Date(article.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
+                </td>
+                <td>
+                  <span style="font-weight: 600; color: var(--text-secondary);">
+                    <i class="fa-regular fa-comment"></i> <%= article.comments ? article.comments.length : 0 %>
+                  </span>
+                </td>
+                <td style="text-align: right;">
+                  <div style="display: inline-flex; align-items: center; gap: 0.5rem;">
+                    <a href="/articles/<%= article._id %>" class="btn btn-outline btn-sm" title="View Story">
+                      <i class="fa-solid fa-eye"></i>
+                    </a>
+                    <a href="/articles/<%= article._id %>/edit" class="btn btn-outline btn-sm" title="Edit Story">
+                      <i class="fa-solid fa-pen-to-square"></i> Edit
+                    </a>
+                    <form 
+                      action="/articles/<%= article._id %>/delete" 
+                      method="POST" 
+                      style="display: inline;" 
+                      data-confirm="Are you sure you want to delete '<%= article.title %>'? This action cannot be undone."
+                    >
+                      <button type="submit" class="btn btn-danger-outline btn-sm" title="Delete Story">
+                        <i class="fa-solid fa-trash"></i>
+                      </button>
+                    </form>
+                  </div>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    <% } %>
+  </section>
+</main>
+
+<%- include('partials/footer') %>
